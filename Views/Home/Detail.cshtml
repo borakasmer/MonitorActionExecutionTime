@@ -1,0 +1,43 @@
+@model List<DetailModel>
+
+<div id="visualization" style="width: 1000px; height: 800px;"></div>
+@section scripts {
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load('visualization', '1', { packages: ['corechart'] });
+    </script>
+    <script type="text/javascript">
+    function Detail() {        
+        var data = google.visualization.arrayToDataTable([
+            ['Created Date', 'Seconds',{ role: 'style' }],
+            @foreach (var item in Model)
+            {
+                var random = new Random();
+                var color = String.Format("#{0:X6}", random.Next(0x1000000));
+                <text>['@item.CreatedDate', @item.TotalSeconds,'@color'],</text>
+            }
+        ]);
+        
+        var options = { 
+            animation:{
+            startup:true,
+            duration: 1000,
+            easing: 'out',
+        },  
+        curveType: 'function'
+        , smoothline: 'true'
+        , width: 1000
+        , height: 800
+        , title: '@ViewBag.Action Total Seconds'
+        , legend: {position: 'none'}
+        ,vAxis: {minValue:0,title:'Total Seconds',titleTextStyle: {color: 'red'}}       
+        ,hAxis: {title:'Created Date',titleTextStyle: {color: 'blue'}}                   
+ };
+        var chartPerformance=new google.visualization.ColumnChart(document.getElementById('visualization'));       
+    
+        chartPerformance.draw(data, options);
+      }
+      
+      google.setOnLoadCallback(Detail);       
+    </script>
+}

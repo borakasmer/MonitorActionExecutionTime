@@ -1,0 +1,53 @@
+@model List<ReportModel>
+
+<div id="visualization" style="width: 800px; height: 600px;"></div>
+
+@section scripts {
+    <script type="text/javascript" src="//www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load('visualization', '1', { packages: ['corechart'] });
+    </script>
+    <script type="text/javascript">
+    function Report() {        
+        var data = google.visualization.arrayToDataTable([
+            ['Action', 'Seconds',{ role: 'style' }],
+            @foreach (var item in Model)
+            {
+                var random = new Random();
+                var color = String.Format("#{0:X6}", random.Next(0x1000000));
+                <text>['@item.Name', @item.TotalSeconds,'@color'],</text>
+            }
+        ]);
+        
+        var options = { 
+            animation:{
+            startup:true,
+            duration: 1000,
+            easing: 'out',
+        },  
+        curveType: 'function'
+        , smoothline: 'true'
+        , width: 800
+        , height: 600
+        , title: 'All Action Total Seconds'
+        , legend: {position: 'none'}
+        ,vAxis: {minValue:0,title:'Total Seconds',titleTextStyle: {color: 'red'}}       
+        ,hAxis: {title:'Actions',titleTextStyle: {color: 'blue'}}                   
+ };
+        var chartPerformance=new google.visualization.ColumnChart(document.getElementById('visualization'));
+
+        function selectAction() {
+          var selectedBar = chartPerformance.getSelection()[0];
+          if (selectedBar) {
+            var selectedAction = data.getValue(selectedBar.row, 0); 
+            window.location.href="/Home/Detail/"+selectedAction.replace(/\//g,'_');            
+          }
+        }
+
+        google.visualization.events.addListener(chartPerformance, 'select', selectAction);  
+        chartPerformance.draw(data, options);
+      }
+      
+      google.setOnLoadCallback(Report);       
+    </script>
+}
